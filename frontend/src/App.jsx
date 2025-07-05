@@ -9,35 +9,31 @@ import About from './pages/About';
 import Login from './auth/Login';
 import Register from './auth/Register';
 import MyAccount from './pages/MyAccount';
-import AdminNavbar from './Admin/adminnav';
-import AdminPanel from './AdminPanel';
-import ManageBooks from './Admin/ManageBooks';
-import Ebook from './Admin/Ebook';
-import { useLocation } from 'react-router-dom';
-import BorrowRequests from './Admin/BorrowRequests';
+import AdminApp from './AdminPanel';
+import BookPreview from './pages/Bookpreview';
+import BorrowBooks from './pages/Browsebook';
 
-
+import UpdateProfile from './pages/Updateprofile';
 const App = () => {
-  
   return (
     <Router>
-      <Navbar />
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/ebooks" element={<Ebooks />} />
-        <Route path="/reviews" element={<Reviews />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/account" element={<MyAccount />} />
-        <Route path="/about" element={<About />} />
-        <Route path='/login' element={<Login/>}/>
-         <Route path='/Register' element={<Register/>}/>
-        <Route path='/login' element={<Login/>}/>
-
-
-         <Route path="/admin" element={<AdminPanel />} />
-          <Route path="/managebook" element={<ManageBooks />} />
-         <Route path="/borrowrequests" element={<BorrowRequests />} />
-   <Route path="/ebook" element={<Ebook/>} />
+        <Route path="/" element={<><Navbar /><Home /></>} />
+        <Route path="/ebooks" element={<><Navbar /><Ebooks /></>} />
+        <Route path="/reviews" element={<><Navbar /><Reviews /></>} />
+        <Route path="/contact" element={<><Navbar /><Contact /></>} />
+        <Route path="/account" element={<><Navbar /><MyAccount /></>} />
+        <Route path="/about" element={<><Navbar /><About /></>} />
+        <Route path="/browsebook" element={<><Navbar /><BorrowBooks /></>} />
+        <Route path="/preview/:id" element={<><Navbar /><BookPreview /></>} />
+        <Route path='/login' element={<Login />} />
+        <Route path='/register' element={<Register />} />
+        <Route path="/update-profile" element={<UpdateProfile />} /> {/* New Route */}
+        {/* Add your other routes here, e.g., home page */}
+        <Route path="/" element={<div>Home Page (Placeholder)</div>} /> 
+        
+        {/* Admin Dashboard */}
+        <Route path="/admin/*" element={<AdminApp />} />
       </Routes>
     </Router>
   );

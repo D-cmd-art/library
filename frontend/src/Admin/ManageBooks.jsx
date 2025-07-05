@@ -1,476 +1,422 @@
-import React, { useState } from 'react';
+// src/components/ManageBooks.jsx
+import React, { useState, useEffect } from 'react';
+import api from '../api'; // Your centralized Axios instance
+
+// --- Cloudinary Configuration (Replace with your actual details) ---
+const CLOUDINARY_CLOUD_NAME = 'dyzkykmoq'; // e.g., 'dqxxxxxx'
+const CLOUDINARY_UPLOAD_PRESET = 'Libraryupload'; // e.g., 'ml_default' or your custom unsigned preset
 
 const ManageBooks = () => {
-  const [activeTab, setActiveTab] = useState('physical'); // 'physical' or 'ebook'
+  const [activeTab, setActiveTab] = useState('physical');
+  const [physicalBooks, setPhysicalBooks] = useState([]);
+  const [ebooks, setEbooks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
   const [physicalFormData, setPhysicalFormData] = useState({
-    title: '',
-    author: '',
-    isbn: '',
-    publisher: '',
-    year: '',
-    copies: 1,
-    category: '',
-    image: null,
+    title: '', author: '', isbn: '', publisher: '', year: '', copies: 1, category: '', image: null // image will be a File object initially
   });
 
   const [ebookFormData, setEbookFormData] = useState({
-    title: '',
-    author: '',
-    isbn: '',
-    publisher: '',
-    year: '',
-    category: '',
-    image: null,
-    pdf: null,
+    title: '', author: '', isbn: '', publisher: '', year: '', category: '', image: null, pdf: null // image and pdf will be File objects initially
   });
 
-  const [physicalBooks, setPhysicalBooks] = useState([
-    {
-      title: 'To Kill a Mockingbird',
-      author: 'Harper Lee',
-      isbn: '978-0446310789',
-      category: 'Fiction',
-      copies: 5,
-      available: 3,
-      image: null,
-    },
-    {
-      title: '1984',
-      author: 'George Orwell',
-      isbn: '978-0451524935',
-      category: 'Fiction',
-      copies: 3,
-      available: 2,
-      image: null,
-    },
-  ]);
+  const [ebookImageFileName, setEbookImageFileName] = useState('');
+  const [ebookPdfFileName, setEbookPdfFileName] = useState('');
+  const [physicalImageFileName, setPhysicalImageFileName] = useState('');
 
-  const [ebooks, setEbooks] = useState([
-    // Example eBook:
-    // {
-    //   title: 'Sample eBook',
-    //   author: 'Author Name',
-    //   isbn: '123456789',
-    //   category: 'Science',
-    //   image: null,
-    //   pdf: null,
-    // }
-  ]);
-
-  // Handle input change for physical book form
-  const handlePhysicalChange = (e) => {
-    const { name, value, files } = e.target;
-    if (name === 'image') {
-      setPhysicalFormData({ ...physicalFormData, image: files[0] });
-    } else {
-      setPhysicalFormData({ ...physicalFormData, [name]: value });
-    }
-  };
-
-  // Handle input change for ebook form
-  const handleEbookChange = (e) => {
-    const { name, value, files } = e.target;
-    if (name === 'image' || name === 'pdf') {
-      setEbookFormData({ ...ebookFormData, [name]: files[0] });
-    } else {
-      setEbookFormData({ ...ebookFormData, [name]: value });
-    }
-  };
-const handleEbookpdf = (e) => {
-    const { name, value, files } = e.target;
-    if (name === 'pdf') {
-      setEbookFormData({ ...ebookFormData, [name]: files[0] });
-    } else {
-      setEbookFormData({ ...ebookFormData, [name]: value });
-    }
-  };
-  // Add physical book
-  const addPhysicalBook = () => {
-    const { title, author, isbn } = physicalFormData;
-    if (!title || !author || !isbn) {
-      return alert('Please fill all required fields for physical book.');
-    }
-
-    const newBook = {
-      ...physicalFormData,
-      copies: Number(physicalFormData.copies),
-      available: Number(physicalFormData.copies),
-      image: physicalFormData.image ? URL.createObjectURL(physicalFormData.image) : null,
+  useEffect(() => {
+    const loadBooks = async () => {
+      setLoading(true);
+      setError('');
+      try {
+        await fetchBooks('physical-books', setPhysicalBooks);
+        await fetchBooks('ebooks', setEbooks);
+      } catch (err) {
+        setError('Failed to load books: ' + err.message);
+      } finally {
+        setLoading(false);
+      }
     };
+    loadBooks();
+  }, []);
 
-    setPhysicalBooks([...physicalBooks, newBook]);
+  const fetchBooks = async (endpoint, setData) => {
+    try {
+      const res = await api.get(`/${endpoint}`);
+      setData(res.data);
+    } catch (err) {
+      console.error(`Error fetching ${endpoint}:`, err);
+      throw err;
+    }
+  }
 
-    setPhysicalFormData({
-      title: '',
-      author: '',
-      isbn: '',
-      publisher: '',
-      year: '',
-      copies: 1,
-      category: '',
-      image: null,
-    });
+  const handleChange = (e, setFormData, isEbookTab = false) => {
+    const { name, value, files } = e.target;
+    if (files && files[0]) {
+      setFormData(prev => ({ ...prev, [name]: files[0] }));
+      if (isEbookTab) {
+        if (name === 'image') setEbookImageFileName(files[0].name);
+        if (name === 'pdf') setEbookPdfFileName(files[0].name);
+      } else {
+        if (name === 'image') setPhysicalImageFileName(files[0].name);
+      }
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
   };
 
-  // Add ebook
-  const addEbook = () => {
-    const { title, author, isbn, pdf } = ebookFormData;
-    if (!title || !author || !isbn || !pdf) {
-      return alert('Please fill all required fields for eBook including uploading a PDF.');
+  const resetPhysicalFormData = () => {
+    setPhysicalFormData({ title: '', author: '', isbn: '', publisher: '', year: '', copies: 1, category: '', image: null });
+    setPhysicalImageFileName('');
+  };
+
+  const resetEbookFormData = () => {
+    setEbookFormData({ title: '', author: '', isbn: '', publisher: '', year: '', category: '', image: null, pdf: null });
+    setEbookImageFileName('');
+    setEbookPdfFileName('');
+  };
+
+  // --- NEW: Cloudinary Upload Function ---
+  const uploadFileToCloudinary = async (file, resourceType = 'image') => {
+    if (!file) return null;
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+
+    try {
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/${resourceType}/upload`,
+        {
+          method: 'POST',
+          body: formData,
+        }
+      );
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(`Cloudinary upload failed: ${errorData.error.message}`);
+      }
+      const data = await response.json();
+      return data.secure_url; // This is the public URL of the uploaded file
+    } catch (uploadError) {
+      console.error("Error uploading to Cloudinary:", uploadError);
+      setError(`File upload failed: ${uploadError.message}`);
+      return null;
+    }
+  };
+
+
+  const addBook = async (formData, endpoint, setBooks, resetData, requiredFields) => {
+    setError('');
+    setSuccessMessage('');
+
+    for (const field of requiredFields) {
+      if (formData[field] === null || formData[field] === '' || (typeof formData[field] === 'number' && isNaN(formData[field]))) {
+        setError(`Please fill all required fields: ${field}`);
+        return;
+      }
     }
 
-    const newEbook = {
-      ...ebookFormData,
-      image: ebookFormData.image ? URL.createObjectURL(ebookFormData.image) : null,
-      pdf: URL.createObjectURL(ebookFormData.pdf),
-    };
+    try {
+      let imageUrl = null;
+      let pdfUrl = null;
 
-    setEbooks([...ebooks, newEbook]);
+      // Upload image if present
+      if (formData.image) {
+        imageUrl = await uploadFileToCloudinary(formData.image, 'image');
+        if (!imageUrl) { // If upload failed, stop
+          return;
+        }
+      }
 
-    setEbookFormData({
-      title: '',
-      author: '',
-      isbn: '',
-      publisher: '',
-      year: '',
-      category: '',
-      image: null,
-      pdf: null,
-    });
+      // Upload PDF if present (only for ebooks)
+      if (formData.pdf) {
+        pdfUrl = await uploadFileToCloudinary(formData.pdf, 'raw'); // Use 'raw' for PDF files
+        if (!pdfUrl) { // If upload failed, stop
+          return;
+        }
+      }
+
+      // Prepare payload to send to your backend (now with URLs)
+      const payload = { ...formData };
+      delete payload.image; // Remove file object
+      delete payload.pdf;   // Remove file object
+
+      if (imageUrl) payload.image = imageUrl;
+      if (pdfUrl) payload.pdf = pdfUrl;
+
+      // Convert year and copies to numbers if they are strings
+      if (payload.year) payload.year = Number(payload.year);
+      if (payload.copies) payload.copies = Number(payload.copies);
+
+
+      console.log("Frontend - Payload sent to backend:", payload);
+
+      // Send payload to your backend (now it's JSON, not FormData with files)
+      const res = await api.post(`/${endpoint}`, payload); // Axios will default to application/json
+
+      setBooks(prev => [...prev, res.data]);
+      resetData();
+      setSuccessMessage('Book added successfully!');
+      fetchBooks(endpoint, setBooks);
+
+    } catch (err) {
+      console.error("Error adding book:", err.response?.data || err.message);
+      let errorMessage = err.response?.data?.message || 'Failed to add book.';
+      if (err.response?.data?.errors) {
+        errorMessage += ' Details: ' + Object.values(err.response.data.errors).join(', ');
+      } else if (err.response?.data?.error) {
+        errorMessage += ' Details: ' + err.response.data.error;
+      }
+      setError(errorMessage);
+    }
   };
 
-  // Delete physical book by ISBN
-  const deletePhysicalBook = (isbn) => {
-    setPhysicalBooks(physicalBooks.filter((book) => book.isbn !== isbn));
+  const deleteBook = async (isbn, endpoint, setBooks) => {
+    setError('');
+    setSuccessMessage('');
+    if (!window.confirm('Are you sure you want to delete this book?')) {
+      return;
+    }
+
+    try {
+      await api.delete(`/${endpoint}/${isbn}`);
+      setBooks(prev => prev.filter(book => book.isbn !== isbn));
+      setSuccessMessage('Book deleted successfully!');
+    } catch (err) {
+      console.error("Error deleting book:", err.response?.data || err.message);
+      setError(err.response?.data?.message || 'Failed to delete book.');
+    }
   };
 
-  // Delete ebook by ISBN
-  const deleteEbook = (isbn) => {
-    setEbooks(ebooks.filter((ebook) => ebook.isbn !== isbn));
-  };
+  const renderTableRows = (books, isEbook, onDelete) => {
+    if (!books || books.length === 0) {
+      return (
+        <tr>
+          <td colSpan="7" className="p-4 text-center text-gray-500">No books found.</td>
+        </tr>
+      );
+    }
+    return books.map(book => (
+      <tr key={book.isbn} className="border-t">
+        <td className="p-2">
+          {book.image
+            ? <img
+                    src={book.image}
+                    alt={book.title}
+                    className="w-12 h-16 rounded object-cover"
+                    onError={(e) => { e.target.onerror = null; e.target.src="https://placehold.co/48x64/cccccc/ffffff?text=No+Img"; }}
+                  />
+                : 'No Image'}
+            </td>
+            <td className="p-2">{book.title}</td>
+            <td className="p-2">{book.author}</td>
+            <td className="p-2">{book.isbn}</td>
+            <td className="p-2">{book.category}</td>
+            {isEbook ? (
+              <td className="p-2">
+                {book.pdf
+                  ? <a href={book.pdf} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">View PDF</a>
+                  : 'No PDF'}
+              </td>
+            ) : (
+              <td className="p-2">{book.available ?? book.copies}/{book.copies}</td>
+            )}
+            <td className="p-2">
+              <button onClick={() => onDelete(book.isbn)} className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition">Delete</button>
+            </td>
+          </tr>
+        ));
+      };
 
-  return (
-    <div className="p-6 bg-white rounded shadow w-full">
-      <h2 className="text-2xl font-semibold mb-4">Manage Books</h2>
+      return (
+        <div className="p-6 bg-white rounded shadow">
+          <h2 className="text-2xl font-semibold mb-4">Manage Books</h2>
 
-      {/* Toggle buttons */}
-      <div className="flex space-x-2 mb-6">
-        <button
-          className={`px-4 py-2 rounded ${activeTab === 'physical' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-black'}`}
-          onClick={() => setActiveTab('physical')}
-        >
-          Physical Books
-        </button>
-        <button
-          className={`px-4 py-2 rounded ${activeTab === 'ebook' ? 'bg-purple-600 text-white' : 'bg-gray-200 text-black'}`}
-          onClick={() => setActiveTab('ebook')}
-        >
-          eBooks
-        </button>
-      </div>
-
-      {/* Physical Books Form */}
-      
-        <>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <input
-              name="title"
-              value={physicalFormData.title}
-              onChange={handlePhysicalChange}
-              placeholder="Title *"
-              className="border p-2 rounded"
-            />
-            <input
-              name="author"
-              value={physicalFormData.author}
-              onChange={handlePhysicalChange}
-              placeholder="Author *"
-              className="border p-2 rounded"
-            />
-            <input
-              name="isbn"
-              value={physicalFormData.isbn}
-              onChange={handlePhysicalChange}
-              placeholder="ISBN *"
-              className="border p-2 rounded"
-            />
-            <input
-              name="publisher"
-              value={physicalFormData.publisher}
-              onChange={handlePhysicalChange}
-              placeholder="Publisher"
-              className="border p-2 rounded"
-            />
-            <input
-              name="year"
-              value={physicalFormData.year}
-              onChange={handlePhysicalChange}
-              placeholder="Publication Year"
-              className="border p-2 rounded"
-            />
-            <input
-              name="copies"
-              type="number"
-              value={physicalFormData.copies}
-              onChange={handlePhysicalChange}
-              placeholder="Number of Copies"
-              className="border p-2 rounded"
-              min={1}
-            />
-            <select
-              name="category"
-              value={physicalFormData.category}
-              onChange={handlePhysicalChange}
-              className="border p-2 rounded"
+          <div className="flex space-x-2 mb-4">
+            <button
+              className={`px-4 py-2 rounded ${activeTab === 'physical' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+              onClick={() => setActiveTab('physical')}
             >
-              <option value="">Select a category</option>
-              <option value="Fiction">Fiction</option>
-              <option value="Science">Science</option>
-              <option value="History">History</option>
-            </select>
-            <input
-              type="file"
-              name="image"
-              accept="image/*"
-              onChange={handlePhysicalChange}
-              className="border p-2 rounded"
-            />
-            {physicalFormData.image && (
-              <div className="col-span-2">
-                <p className="text-sm text-gray-600">Image Preview:</p>
-                <img
-                  src={URL.createObjectURL(physicalFormData.image)}
-                  alt="Preview"
-                  className="w-24 h-32 object-cover rounded mt-2 border"
+              Physical Books
+            </button>
+            <button
+              className={`px-4 py-2 rounded ${activeTab === 'ebook' ? 'bg-purple-600 text-white' : 'bg-gray-200'}`}
+              onClick={() => setActiveTab('ebook')}
+            >
+              eBooks
+            </button>
+          </div>
+
+          {loading && <p className="text-center text-gray-700 mb-4">Loading...</p>}
+          {error && <p className="text-red-600 text-center mb-4">{error}</p>}
+          {successMessage && <p className="text-green-600 text-center mb-4">{successMessage}</p>}
+
+          {activeTab === 'physical' ? (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                {['title', 'author', 'isbn', 'publisher', 'year', 'copies'].map(field => (
+                  <input
+                    key={field}
+                    name={field}
+                    value={physicalFormData[field]}
+                    onChange={e => handleChange(e, setPhysicalFormData)}
+                    placeholder={`${field[0].toUpperCase() + field.slice(1)} *`}
+                    className="border p-2 rounded"
+                    type={field === 'copies' || field === 'year' ? 'number' : 'text'}
+                    required={['title', 'author', 'isbn', 'copies'].includes(field)}
+                  />
+                ))}
+                <select
+                  name="category"
+                  value={physicalFormData.category}
+                  onChange={e => handleChange(e, setPhysicalFormData)}
+                  className="border p-2 rounded"
+                >
+                  <option value="">Select a category</option>
+                  <option value="Fiction">Fiction</option>
+                  <option value="Science">Science</option>
+                  <option value="History">History</option>
+                  <option value="Biography">Biography</option>
+                  <option value="Fantasy">Fantasy</option>
+                </select>
+                <input
+                  type="file"
+                  name="image"
+                  accept="image/*"
+                  onChange={e => handleChange(e, setPhysicalFormData)}
+                  className="border p-2 rounded"
                 />
               </div>
-            )}
-          </div>
 
-          <button
-            onClick={addPhysicalBook}
-            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-          >
-            Add Physical Book
-          </button>
+              {physicalFormData.image && (
+                <img src={URL.createObjectURL(physicalFormData.image)} alt="Preview" className="w-24 h-32 object-cover rounded mb-4" />
+              )}
+              {physicalImageFileName && (
+                <p className="text-sm text-gray-600 mb-2">Image Selected: {physicalImageFileName}</p>
+              )}
 
-          {/* Physical Books List */}
-          <div className="mt-10">
-            <h3 className="text-xl font-semibold mb-4">Physical Books</h3>
-            <input
-              type="text"
-              placeholder="Search books..."
-              className="border p-2 rounded mb-4 w-full"
-              // You can add search logic later here
-            />
-            <table className="w-full border divide-y divide-gray-200">
-              <thead className="bg-gray-100">
-                <tr>
-                  <th className="text-left p-2">Image</th>
-                  <th className="text-left p-2">Title</th>
-                  <th className="text-left p-2">Author</th>
-                  <th className="text-left p-2">ISBN</th>
-                  <th className="text-left p-2">Category</th>
-                  <th className="text-left p-2">Availability</th>
-                  <th className="text-left p-2">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {physicalBooks.map((book) => (
-                  <tr key={book.isbn} className="border-t">
-                    <td className="p-2">
-                      {book.image ? (
-                        <img
-                          src={book.image}
-                          alt={book.title}
-                          className="w-12 h-16 object-cover rounded"
-                        />
-                      ) : (
-                        <span className="text-gray-400 text-sm">No Image</span>
-                      )}
-                    </td>
-                    <td className="p-2">{book.title}</td>
-                    <td className="p-2">{book.author}</td>
-                    <td className="p-2">{book.isbn}</td>
-                    <td className="p-2">{book.category}</td>
-                    <td className="p-2">
-                      {book.available}/{book.copies}
-                    </td>
-                    <td className="p-2">
-                      <button
-                        onClick={() => deletePhysicalBook(book.isbn)}
-                        className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                      >
-                        Delete
-                      </button>
-                    </td>
+              <button
+                onClick={() => addBook(
+                  physicalFormData,
+                  'physical-books',
+                  setPhysicalBooks,
+                  resetPhysicalFormData,
+                  ['title', 'author', 'isbn', 'year', 'copies']
+                )}
+                className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
+              >
+                Add Physical Book
+              </button>
+
+              <table className="w-full mt-6 border">
+                <thead className="bg-gray-100">
+                  <tr>
+                    <th className="p-2 text-left">Image</th>
+                    <th className="p-2 text-left">Title</th>
+                    <th className="p-2 text-left">Author</th>
+                    <th className="p-2 text-left">ISBN</th>
+                    <th className="p-2 text-left">Category</th>
+                    <th className="p-2 text-left">Copies</th>
+                    <th className="p-2 text-left">Actions</th>
                   </tr>
+                </thead>
+                <tbody>
+                  {renderTableRows(physicalBooks, false, isbn => deleteBook(isbn, 'physical-books', setPhysicalBooks))}
+                </tbody>
+              </table>
+            </>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                {['title', 'author', 'isbn', 'publisher', 'year'].map(field => (
+                  <input
+                    key={field}
+                    name={field}
+                    value={ebookFormData[field]}
+                    onChange={e => handleChange(e, setEbookFormData, true)}
+                    placeholder={`${field[0].toUpperCase() + field.slice(1)} *`}
+                    className="border p-2 rounded"
+                    type={field === 'year' ? 'number' : 'text'}
+                    required={['title', 'author', 'isbn'].includes(field)}
+                  />
                 ))}
-              </tbody>
-            </table>
-          </div>
-        </>
-      )}
-
-      {/* eBooks Form */}
-      {activeTab === 'ebook' && (
-        <>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <input
-              name="title"
-              value={ebookFormData.title}
-              onChange={handleEbookChange}
-              placeholder="Title *"
-              className="border p-2 rounded"
-            />
-            <input
-              name="author"
-              value={ebookFormData.author}
-              onChange={handleEbookChange}
-              placeholder="Author *"
-              className="border p-2 rounded"
-            />
-            <input
-              name="isbn"
-              value={ebookFormData.isbn}
-              onChange={handleEbookChange}
-              placeholder="ISBN *"
-              className="border p-2 rounded"
-            />
-            <input
-              name="publisher"
-              value={ebookFormData.publisher}
-              onChange={handleEbookChange}
-              placeholder="Publisher"
-              className="border p-2 rounded"
-            />
-            <input
-              name="year"
-              value={ebookFormData.year}
-              onChange={handleEbookChange}
-              placeholder="Publication Year"
-              className="border p-2 rounded"
-            />
-            <select
-              name="category"
-              value={ebookFormData.category}
-              onChange={handleEbookChange}
-              className="border p-2 rounded"
-            >
-              <option value="">Select a category</option>
-              <option value="Fiction">Fiction</option>
-              <option value="Science">Science</option>
-              <option value="History">Histor</option>
-            </select>
-            <input
-              type="file"
-              name="image"
-              accept="image/*"
-              onChange={handleEbookChange}
-              className="border p-2 rounded"
-            />
-            <input
-              type="file"
-              name="pdf"
-              accept="application/pdf"
-              onChange={handleEbookpdf}
-              className="border p-2 rounded"
-            />
-            {ebookFormData.image && (
-              <div className="col-span-2">
-                <p className="text-sm text-gray-600">Image Preview:</p>
-                <img
-                  src={URL.createObjectURL(ebookFormData.image)}
-                  alt="Preview"
-                  className="w-24 h-32 object-cover rounded mt-2 border"
+                <select
+                  name="category"
+                  value={ebookFormData.category}
+                  onChange={e => handleChange(e, setEbookFormData, true)}
+                  className="border p-2 rounded"
+                >
+                  <option value="">Select a category</option>
+                  <option value="Fiction">Fiction</option>
+                  <option value="Science">Science</option>
+                  <option value="History">History</option>
+                  <option value="Biography">Biography</option>
+                  <option value="Fantasy">Fantasy</option>
+                </select>
+                <input
+                  type="file"
+                  name="image"
+                  accept="image/*"
+                  onChange={e => handleChange(e, setEbookFormData, true)}
+                  className="border p-2 rounded"
+                />
+                <input
+                  type="file"
+                  name="pdf"
+                  accept="application/pdf"
+                  onChange={e => handleChange(e, setEbookFormData, true)}
+                  className="border p-2 rounded"
+                  required
                 />
               </div>
-            )}
-            {ebookFormData.pdf && (
-              <div className="col-span-2 mt-2">
-                <p className="text-sm text-gray-600">PDF File Selected: {ebookFormData.pdf.name}</p>
-              </div>
-            )}
-          </div>
 
-          <button
-            onClick={addEbook}
-            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-          >
-            Add eBook
-          </button>
+              {ebookFormData.image && (
+                <img src={URL.createObjectURL(ebookFormData.image)} alt="Preview" className="w-24 h-32 object-cover rounded mb-4" />
+              )}
+              {ebookImageFileName && (
+                <p className="text-sm text-gray-600 mb-2">Image Selected: {ebookImageFileName}</p>
+              )}
+              {ebookPdfFileName && (
+                <p className="text-sm text-gray-600 mb-2">PDF Selected: {ebookPdfFileName}</p>
+              )}
 
-          {/* eBooks List */}
-          <div className="mt-10">
-            <h3 className="text-xl font-semibold mb-4">eBooks</h3>
-            <input
-              type="text"
-              placeholder="Search eBooks..."
-              className="border p-2 rounded mb-4 w-full"
-              // You can add search logic later here
-            />
-            <table className="w-full border divide-y divide-gray-200">
-              <thead className="bg-gray-100">
-                <tr>
-                  <th className="text-left p-2">Image</th>
-                  <th className="text-left p-2">Title</th>
-                  <th className="text-left p-2">Author</th>
-                  <th className="text-left p-2">ISBN</th>
-                  <th className="text-left p-2">Category</th>
-                  <th className="text-left p-2">PDF</th>
-                  <th className="text-left p-2">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {ebooks.map((ebook) => (
-                  <tr key={ebook.isbn} className="border-t">
-                    <td className="p-2">
-                      {ebook.image ? (
-                        <img
-                          src={ebook.image}
-                          alt={ebook.title}
-                          className="w-12 h-16 object-cover rounded"
-                        />
-                      ) : (
-                        <span className="text-gray-400 text-sm">No Image</span>
-                      )}
-                    </td>
-                    <td className="p-2">{ebook.title}</td>
-                    <td className="p-2">{ebook.author}</td>
-                    <td className="p-2">{ebook.isbn}</td>
-                    <td className="p-2">{ebook.category}</td>
-                    <td className="p-2">
-                      {ebook.pdf ? (
-                        <a
-                          href={ebook.pdf}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-600 underline"
-                        >
-                          View PDF
-                        </a>
-                      ) : (
-                        <span className="text-gray-400 text-sm">No PDF</span>
-                      )}
-                    </td>
-                    <td className="p-2">
-                      <button
-                        onClick={() => deleteEbook(ebook.isbn)}
-                        className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                      >
-                        Delete
-                      </button>
-                    </td>
+              <button
+                onClick={() => addBook(
+                  ebookFormData,
+                  'ebooks',
+                  setEbooks,
+                  resetEbookFormData,
+                  ['title', 'author', 'isbn', 'pdf']
+                )}
+                className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
+              >
+                Add eBook
+              </button>
+
+              <table className="w-full mt-6 border">
+                <thead className="bg-gray-100">
+                  <tr>
+                    <th className="p-2 text-left">Image</th>
+                    <th className="p-2 text-left">Title</th>
+                    <th className="p-2 text-left">Author</th>
+                    <th className="p-2 text-left">ISBN</th>
+                    <th className="p-2 text-left">Category</th>
+                    <th className="p-2 text-left">PDF</th>
+                    <th className="p-2 text-left">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </>
-      )}
-    </div>
-  );
-};
+                </thead>
+                <tbody>
+                  {renderTableRows(ebooks, true, isbn => deleteBook(isbn, 'ebooks', setEbooks))}
+                </tbody>
+              </table>
+            </>
+          )}
+        </div>
+      );
+    };
 
-export default ManageBooks;
+    export default ManageBooks;
+    

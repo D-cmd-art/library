@@ -1,26 +1,39 @@
-const jwt = require('jsonwebtoken');
-const User = require('../model/User');
+// middleware/authMiddleware.js
+const jwt = require('jsonwebtoken'); 
+const User = require('../model/User'); // Ensure path is correct: '../model/User'
 
-const JWT_SECRET = 'your_jwt_secret'; // Ideally from .env
+const protect = async (req, res, next) => {
+  let token;
 
-const authMiddleware = async (req, res, next) => {
-  const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ message: 'No token provided' });
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+    try {
+      token = req.headers.authorization.split(' ')[1];
+
+      // Verify token using your JWT_SECRET from .env
+      const decoded = jwt.verify(token, process.env.JWT_SECRET); 
+
+      // Find user by ID from the token payload and attach to request object
+      req.user = await User.findById(decoded.id).select('-password');
+      
+      next(); 
+    } catch (error) {
+      console.error('Not authorized, token failed:', error);
+      res.status(401).json({ message: 'Not authorized, token failed' });
+    }
   }
 
-  const token = authHeader.split(' ')[1];
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    const user = await User.findById(decoded.id).select('-password');
-    if (!user) return res.status(402).json({ message: 'User not found' });
-
-    req.user = user;
-    next();
-  } catch (err) {
-    console.error(err);
-    res.status(401).json({ message: 'Invalid token' });
+  if (!token) {
+    res.status(401).json({ message: 'Not authorized, no token provided' });
   }
 };
 
-module.exports = authMiddleware;
+const authorizeRoles = (...roles) => {
+  return (req, res, next) => {
+    if (!req.user || !roles.includes(req.user.role)) {
+      return res.status(403).json({ message: 'Forbidden: You do not have permission to access this resource' });
+    }
+    next();
+  };
+};
+
+module.exports = { protect, authorizeRoles };
