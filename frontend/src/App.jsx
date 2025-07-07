@@ -12,7 +12,7 @@ import MyAccount from './pages/MyAccount';
 import AdminApp from './AdminPanel';
 import BookPreview from './pages/Bookpreview';
 import BorrowBooks from './pages/Browsebook';
-
+import DonateBook from './pages/Donatebook';
 import UpdateProfile from './pages/Updateprofile';
 const App = () => {
   return (
@@ -26,6 +26,7 @@ const App = () => {
         <Route path="/about" element={<><Navbar /><About /></>} />
         <Route path="/browsebook" element={<><Navbar /><BorrowBooks /></>} />
         <Route path="/preview/:id" element={<><Navbar /><BookPreview /></>} />
+          <Route path="/donate" element={<><Navbar /><DonateBook /></>} />
         <Route path='/login' element={<Login />} />
         <Route path='/register' element={<Register />} />
         <Route path="/update-profile" element={<UpdateProfile />} /> {/* New Route */}

@@ -3,13 +3,14 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Container, Nav, Navbar, Button } from 'react-bootstrap';
 import { FaUserCircle } from 'react-icons/fa';
 import './Navbar.css';
+
 const Navigation = () => {
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
 
   const handleLogout = () => {
     localStorage.removeItem('token');
-    navigate('/login');  // Redirect to login page after logout
+    navigate('/login'); // Redirect to login page after logout
   };
 
   return (
@@ -25,6 +26,10 @@ const Navigation = () => {
             <Nav.Link as={Link} to="/reviews">Reviews</Nav.Link>
             <Nav.Link as={Link} to="/about">About</Nav.Link>
             <Nav.Link as={Link} to="/contact">Contact</Nav.Link>
+            {/* New: Donate Book button, only visible when logged in */}
+            {token && (
+              <Nav.Link as={Link} to="/donate">Donate Book</Nav.Link>
+            )}
           </Nav>
 
           {token ? (
@@ -32,8 +37,7 @@ const Navigation = () => {
               <Nav.Link as={Link} to="/account" className="flex items-center space-x-2 px-3 py-2 rounded-md text-gray-700 hover:text-white hover:bg-blue-600 transition">
                 <FaUserCircle className="text-2xl" />
               </Nav.Link>
-              
-              <Button  className="me-2" variant="info" onClick={handleLogout}>
+              <Button className="me-2" variant="info" onClick={handleLogout}>
                 Logout
               </Button>
             </>
@@ -47,7 +51,6 @@ const Navigation = () => {
               </Button>
             </>
           )}
-          
         </Navbar.Collapse>
       </Container>
     </Navbar>

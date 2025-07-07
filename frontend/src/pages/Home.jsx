@@ -1,15 +1,17 @@
 
 import React from 'react';
 import { FaBook, FaUsers, FaDownload, FaStar, FaSearch } from 'react-icons/fa';
+import AboutUs from './About';
+import ContactUs from './Contact';
 
 const Home = () => {
   return (
     <div className="font-sans">
       {/* Hero Section */}
       <div className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white py-20 px-5 rounded-b-3xl text-center">
-        <h1 className="text-4xl md:text-5xl font-bold mb-4">Welcome to LibraryHub</h1>
+        <h1 className="text-4xl md:text-5xl font-bold mb-4">Welcome to Library Management System</h1>
         <p className="text-lg md:text-xl max-w-xl mx-auto mb-6">
-          Discover, borrow, and enjoy thousands of books in our digital library. Your next great read is just a search away.
+          Discover, borrow, and enjoy thousands of books. Your next great read is just a search away.
         </p>
         <div className="flex justify-center">
           <div className="flex items-center bg-white rounded-full overflow-hidden px-4 py-2 w-full max-w-md shadow-md">
@@ -50,7 +52,10 @@ const Home = () => {
           <h3 className="text-2xl font-bold">4.8</h3>
           <p className="text-gray-600">Average Rating</p>
         </div>
+
       </div>
+      <AboutUs/>
+      <ContactUs/>
     </div>
   );
 };

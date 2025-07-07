@@ -1,0 +1,81 @@
+/* Custom styles for your Navbar */
+
+/* --- NEW/UPDATED: Custom Navbar Backgrounds --- */
+.bg-primary-transparent {
+  background-color: #2974c4 !important; /* Slightly transparent dark background */
+}
+
+.bg-primary-scrolled {
+  background-color: #004085 !important; /* A darker, rich blue for when scrolled */
+  /* This color is similar to Bootstrap's 'primary' but can be customized */
+}
+
+/* Base Nav Link Styling */
+.nav-link-custom {
+  color: white !important; /* Default white text */
+  font-weight: 500;
+  padding: 0.5rem 1rem !important; /* Adjust padding */
+  border-radius: 0.375rem; /* Tailwind-like rounded-md */
+  transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
+}
+
+.nav-link-custom:hover {
+  background-color: rgba(255, 255, 255, 0.15); /* Slight white overlay on hover */
+  transform: translateY(-2px); /* Subtle lift effect */
+  color: white !important; /* Ensure text remains white on hover */
+}
+
+/* Specific styling for the Account icon link */
+.nav-link-custom-icon {
+  display: flex; /* Allow item centering if needed */
+  align-items: center;
+  padding: 0.5rem !important; /* Smaller padding for just the icon */
+  margin-right: 0.5rem; /* Space between icon and next button */
+  transition: transform 0.2s ease;
+}
+
+.nav-link-custom-icon:hover {
+  transform: scale(1.1); /* Slightly enlarge icon on hover */
+  background-color: transparent !important; /* No background change for icon link */
+}
+
+/* Custom Button Styling */
+.btn-custom-outline {
+  border: 2px solid white !important; /* White border */
+  color: white !important; /* White text */
+  background-color: transparent !important; /* Transparent background */
+  padding: 0.5rem 1.25rem !important; /* Adjust padding */
+  font-weight: 600;
+  border-radius: 0.5rem; /* Rounded corners */
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn-custom-outline:hover {
+  background-color: white !important; /* Fill with white on hover */
+  color: #004085 !important; /* Text color matching scrolled navbar background */
+  transform: translateY(-2px); /* Subtle lift effect */
+}
+
+.btn-custom-filled {
+  background-color: #17a2b8 !important; /* Bootstrap info color (a teal/cyan) */
+  border-color: #17a2b8 !important;
+  color: white !important;
+  padding: 0.5rem 1.25rem !important;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn-custom-filled:hover {
+  background-color: #138496 !important; /* Darker info color on hover */
+  transform: translateY(-2px);
+}
+
+/* Adjustments for Navbar.Toggle to ensure icon visibility */
+.navbar-toggler-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+}
