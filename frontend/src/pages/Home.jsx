@@ -31,19 +31,19 @@ const Home = () => {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 px-6 py-12 bg-white text-center">
         <div className="shadow-md rounded-xl p-6 border">
           <FaBook className="text-4xl mx-auto text-purple-600 mb-3" />
-          <h3 className="text-2xl font-bold">25,000+</h3>
+          <h3 className="text-2xl font-bold">250+</h3>
           <p className="text-gray-600">Books Available</p>
         </div>
 
         <div className="shadow-md rounded-xl p-6 border">
           <FaUsers className="text-4xl mx-auto text-purple-600 mb-3" />
-          <h3 className="text-2xl font-bold">5,000+</h3>
+          <h3 className="text-2xl font-bold">50+</h3>
           <p className="text-gray-600">Active Members</p>
         </div>
 
         <div className="shadow-md rounded-xl p-6 border">
           <FaDownload className="text-4xl mx-auto text-purple-600 mb-3" />
-          <h3 className="text-2xl font-bold">15,000+</h3>
+          <h3 className="text-2xl font-bold">150+</h3>
           <p className="text-gray-600">Books Borrowed</p>
         </div>
 

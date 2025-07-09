@@ -14,6 +14,7 @@ import BookPreview from './pages/Bookpreview';
 import BorrowBooks from './pages/Browsebook';
 import DonateBook from './pages/Donatebook';
 import UpdateProfile from './pages/Updateprofile';
+import BorrowBookHistory from './pages/Borrowedbookhistory';
 const App = () => {
   return (
     <Router>
@@ -27,6 +28,7 @@ const App = () => {
         <Route path="/browsebook" element={<><Navbar /><BorrowBooks /></>} />
         <Route path="/preview/:id" element={<><Navbar /><BookPreview /></>} />
           <Route path="/donate" element={<><Navbar /><DonateBook /></>} />
+          <Route path="/borrow" element={<><Navbar /><BorrowBookHistory /></>} />
         <Route path='/login' element={<Login />} />
         <Route path='/register' element={<Register />} />
         <Route path="/update-profile" element={<UpdateProfile />} /> {/* New Route */}

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Container, Nav, Navbar, Button } from 'react-bootstrap';
-import { FaUserCircle } from 'react-icons/fa';
+import { FaUserCircle, FaBook } from 'react-icons/fa'; // Import FaBook icon
 import './Navbar.css';
 
 const Navigation = () => {
@@ -22,11 +22,13 @@ const Navigation = () => {
           <Nav className="me-auto">
             <Nav.Link as={Link} to="/">Home</Nav.Link>
             <Nav.Link as={Link} to="/browsebook">BrowseBooks</Nav.Link>
+            {/* New: Borrow Books link with icon */}
+           
             <Nav.Link as={Link} to="/ebooks">eBooks</Nav.Link>
-            <Nav.Link as={Link} to="/reviews">Reviews</Nav.Link>
+
             <Nav.Link as={Link} to="/about">About</Nav.Link>
             <Nav.Link as={Link} to="/contact">Contact</Nav.Link>
-            {/* New: Donate Book button, only visible when logged in */}
+            {/* Donate Book button, only visible when logged in */}
             {token && (
               <Nav.Link as={Link} to="/donate">Donate Book</Nav.Link>
             )}
@@ -34,6 +36,9 @@ const Navigation = () => {
 
           {token ? (
             <>
+             <Nav.Link as={Link} to="/borrow">
+              <FaBook className="me-1" /> 
+            </Nav.Link>
               <Nav.Link as={Link} to="/account" className="flex items-center space-x-2 px-3 py-2 rounded-md text-gray-700 hover:text-white hover:bg-blue-600 transition">
                 <FaUserCircle className="text-2xl" />
               </Nav.Link>

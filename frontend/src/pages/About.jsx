@@ -17,14 +17,15 @@ const AboutUs = () => {
                 </div>
 
                 {/* Our Story Section */}
-                <section className="mb-16 grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
-                    <div className="md:order-2">
-                        <img
-                            src="https://images.unsplash.com/photo-1521587765099-ef19677286fa?q=80&w=1770&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                            alt="People reading in a library"
-                            className="w-full h-72 object-cover rounded-xl shadow-lg"
-                        />
-                    </div>
+             <section className="mb-16 grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+  <div className="md:order-2">
+    <img
+      src="https://images.unsplash.com/photo-1549740529-dcd54d92-23c3?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+      alt="view people" 
+      className="w-full h-72 object-cover rounded-xl shadow-lg"
+    />
+  </div>
+
                     <div className="md:order-1">
                         <h2 className="text-3xl font-bold text-gray-800 mb-4">Our Story</h2>
                         <p className="text-gray-700 leading-relaxed mb-4">
