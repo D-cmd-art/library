@@ -36,7 +36,7 @@ const Navigation = () => {
 
           {token ? (
             <>
-             <Nav.Link as={Link} to="/borrow">
+             <Nav.Link as={Link} to="/borrowhistory">
               <FaBook className="me-1" /> 
             </Nav.Link>
               <Nav.Link as={Link} to="/account" className="flex items-center space-x-2 px-3 py-2 rounded-md text-gray-700 hover:text-white hover:bg-blue-600 transition">

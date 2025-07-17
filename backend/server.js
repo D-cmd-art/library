@@ -34,12 +34,13 @@
     const ebookRoutes = require('./Routes/ebook');
     const authRoutes = require('./Routes/auth');
     const accountRoutes = require('./Routes/Account');
-
+const borrowRoutes =require('./routes/borrowRoutes')
     // --- Route Mounting ---
     app.use('/api/physical-books', physicalBookRoutes);
     app.use('/api/ebooks', ebookRoutes);
     app.use('/api/auth', authRoutes);
     app.use('/api/account', accountRoutes);
+    app.use('/api/borrow',borrowRoutes);
 
     // --- Basic Test Route ---
     app.get('/', (req, res) => {

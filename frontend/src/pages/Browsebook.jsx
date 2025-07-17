@@ -117,6 +117,46 @@ const BorrowBooks = () => {
         checkLoginStatusAndFetchBooks();
     }, [navigate]);
 
+    const handleBorrowRequest = async (bookId, bookTitle) => {
+        if (!isLoggedIn) {
+            alert("Please log in to borrow books.");
+            navigate('/login');
+            return;
+        }
+
+        try {
+            // Send borrow request to the backend
+            const response = await api.post('/borrow/request', { bookId });
+            alert(`Borrow request for "${bookTitle}" submitted successfully!`);
+            // Optionally, refresh the book list to reflect any immediate availability changes
+            // Or just update the specific book's 'available' count in the state if the backend sends it back
+            // For now, a simple alert and potential refetch on next load.
+            // A more robust solution would update the local 'books' state.
+            setBooks(prevBooks =>
+                prevBooks.map(book =>
+                    book._id === bookId
+                        ? { ...book, available: book.available - 1 } // Optimistically update, assuming backend success
+                        : book
+                )
+            );
+        } catch (err) {
+            console.error("Error submitting borrow request:", err);
+            const errorMessage = err.response?.data?.msg || "Failed to submit borrow request. Please try again.";
+            alert(errorMessage);
+            // If the error was due to 'out of stock' from the server, you might want to re-fetch
+            // the books to ensure the client-side 'available' count is accurate.
+            if (err.response && (err.response.status === 400 || err.response.status === 404)) {
+                // Re-fetch books to get accurate stock if an issue occurred
+                try {
+                    const response = await api.get('/physical-books');
+                    setBooks(response.data);
+                } catch (fetchErr) {
+                    console.error("Error re-fetching books after failed borrow:", fetchErr);
+                }
+            }
+        }
+    };
+
     const filteredBooks = books.filter(book => {
         const term = searchTerm.toLowerCase();
         return (
@@ -228,11 +268,11 @@ const BorrowBooks = () => {
                                             ? 'bg-gray-400 cursor-not-allowed'
                                             : 'bg-green-600 hover:bg-green-700'
                                     }`}
-                                    onClick={() => alert(`Borrow request placed for "${book.title}"!`)} // Replace with actual borrow logic
+                                    onClick={() => handleBorrowRequest(book._id, book.title)} // Call the new handler
                                     disabled={book.available === 0 || !isLoggedIn} // Disable if no copies available or not logged in
-                                    title={!isLoggedIn ? 'Log in to borrow' : (book.available === 0 ? 'Out of stock' : 'Confirm Borrow')}
+                                    title={!isLoggedIn ? 'Log in to borrow' : (book.available === 0 ? 'Out of stock' : 'Request to Borrow')}
                                 >
-                                    Confirm Borrow
+                                    Request Borrow
                                 </button>
                                 <button
                                     className={`text-sm px-3 py-1.5 rounded mt-auto transition ${
