@@ -34,10 +34,20 @@ export default function SignupPage() {
         password: formData.password
       });
 
-      localStorage.setItem('token', res.data.token);  // if token is returned
-      navigate('/'); // Redirect after successful registration
+      // Store the token in local storage
+      localStorage.setItem('token', res.data.token);
+
+      // Store the user data (including role) in local storage
+      // It's good practice to stringify objects before storing in localStorage
+      localStorage.setItem('user', JSON.stringify(res.data.user));
+
+      // Redirect after successful registration
+      navigate('/'); 
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed');
+      // Handle different error responses from the backend
+      const errorMessage = err.response?.data?.message || 'Registration failed. Please try again.';
+      setError(errorMessage);
+      console.error("Registration Error:", err.response?.data || err.message);
     }
   };
 

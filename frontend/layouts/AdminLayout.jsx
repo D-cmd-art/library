@@ -24,7 +24,7 @@ const AdminLayout = ({ children }) => {
           <NavItem icon={<FaTachometerAlt />} label="Dashboard" onClick={() => navigate('/admin')} />
           <NavItem icon={<FaBook />} label="Manage Books" onClick={() => navigate('/managebook')} />
           <NavItem icon={<FaClipboardList />} label="Borrow Requests" onClick={() => navigate('/borrowrequests')} />
-          <NavItem icon={<FaExchangeAlt />} label="Borrowed Books" onClick={() => navigate('/borrowed-books')} />
+          <NavItem icon={<FaExchangeAlt />} label="Borrowed Books" onClick={() => navigate('/borrowed-History')} />
           <NavItem icon={<FaHistory />} label="Transaction History" onClick={() => navigate('/transaction-history')} />
         </nav>
         <div className="absolute bottom-5 w-56">

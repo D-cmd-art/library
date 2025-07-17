@@ -14,10 +14,29 @@ export default function Login() {
 
     try {
       const res = await api.post('/auth/login', { email, password });
+      
+      // Store the token in local storage
       localStorage.setItem('token', res.data.token);
-      navigate('/');
+      
+      // Store the user data (including role) in local storage
+      // It's good practice to stringify objects before storing in localStorage
+      localStorage.setItem('user', JSON.stringify(res.data.user));
+
+      // --- NEW LOGIC FOR ROLE-BASED REDIRECTION ---
+      const userRole = res.data.user.role; // Get the role from the response
+
+      if (userRole === 'admin' || userRole === 'librarian') {
+        navigate('/admin/borrow-requests'); // Redirect admins/librarians to their specific page
+      } else {
+        navigate('/'); // Redirect regular users to the home page
+      }
+      // --- END NEW LOGIC ---
+
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed');
+      // Handle different error responses from the backend
+      const errorMessage = err.response?.data?.message || 'Login failed. Please check your credentials.';
+      setError(errorMessage);
+      console.error("Login Error:", err.response?.data || err.message);
     }
   };
 
