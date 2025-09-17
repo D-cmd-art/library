@@ -1,7 +1,11 @@
 // routes/borrowRoutes.js
 const express = require('express');
 const router = express.Router();
+<<<<<<< HEAD
 const BorrowRequest = require('../model/BorrowRequest'); // Ensure this path is correct
+=======
+const BorrowRequest = require('../model/BorrowRequests'); // Ensure this path is correct
+>>>>>>> c397f066e3a3e5ea83a77844ccc74002cab5c9ec
 const PhysicalBook = require('../model/PhysicalBook'); // Ensure this path is correct
 
 // Import the specific middleware functions you need
